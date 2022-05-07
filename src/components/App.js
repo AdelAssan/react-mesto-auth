@@ -14,6 +14,7 @@ import * as auth from "../utils/auth";
 import Login from "./Login";
 import Register from "./Register";
 import ProtectedRoute from "./ProtectedRoute";
+import InfoTooltip from "./InfoTooltip";
 
 function App() {
     const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = React.useState(false);
@@ -30,7 +31,10 @@ function App() {
     const [loadingCards, setLoadingCards] = React.useState(false);
     const [loadingAvatar, setLoadingAvatar] = React.useState(false);
     const [loggedIn, setLoggedIn] = React.useState(false);
-    const [userEmail, setUserEmail] = React.useState(null);
+    const [userEmail, setUserEmail] = React.useState("");
+    const [isInfoToolTipPopupOpen, setIsInfoToolTipPopupOpen] = React.useState(false);
+    const [infoTooltip, setInfoTooltip] = React.useState(false);
+
     const history = useHistory();
 
     React.useEffect(() => {
@@ -39,7 +43,7 @@ function App() {
 
     React.useEffect(() => {
         if (loggedIn) {
-            history.push('/')
+            history.push('/');
             return;
         }
         history.push('/register');
@@ -48,9 +52,14 @@ function App() {
     const handleRegister = (email, password) => {
         auth.register(email, password)
             .then(() => {
-                history.push("/login");
+                handleInfoTooltipPopupOpen();
+                    setInfoTooltip(true);
+                    history.push("/login");
+
             })
             .catch((er) => {
+                handleInfoTooltipPopupOpen();
+                setInfoTooltip(false);
                 console.log(er)
             });
     }
@@ -58,14 +67,14 @@ function App() {
     const handleLogin = (email, password) => {
         auth.authorize(email, password)
             .then((data) => {
-                if (!data.jwt) {
-                    return;
-                }
-                setLoggedIn(true);
-                tokenCheck();
                 localStorage.setItem('jwt', data.jwt);
-               // history.push('/');
-            });
+                //tokenCheck();
+                setLoggedIn(true);
+                setUserEmail(email);
+                history.push('/');
+            }).catch((error) => {
+                console.log(error);
+            })
     }
 
     const tokenCheck = () => {
@@ -74,8 +83,7 @@ function App() {
             auth.getContent(jwt)
                 .then((res) => {
                     if (res) {
-                        setUserEmail(res.email);
-                        console.log(res.email)
+                        setUserEmail(res.data.email);
                         setLoggedIn(true);
                         //history.push('/');
                     }
@@ -105,6 +113,12 @@ function App() {
         setIsImagePopupOpen(true);
     }
 
+    function handleInfoTooltipPopupOpen() {
+        setTimeout(() => {
+            setIsInfoToolTipPopupOpen(!isInfoToolTipPopupOpen);
+        }, 500);
+    }
+
     function handleCardDelete(card) {
         setCardForDelete(card);
         setIsConfirmPopupOpen(true);
@@ -116,6 +130,7 @@ function App() {
         setIsEditProfilePopupOpen(false);
         setIsImagePopupOpen(false);
         setIsConfirmPopupOpen(false);
+        setIsInfoToolTipPopupOpen(false);
     }
 
     function handleCardLike(card) {
@@ -193,7 +208,7 @@ function App() {
         <CurrentUserContext.Provider value={currentUser}>
             <div>
                 <div className="page">
-                    <Header/>
+                    <Header onSignOut={handleSignOut} userEmail={userEmail} loggedIn={loggedIn}/>
                     <Switch>
                         <ProtectedRoute exact path="/" loggedIn={loggedIn}>
                             <Main  onEditProfile={handleEditProfileClick}
@@ -217,6 +232,10 @@ function App() {
                     </Switch>
                     <Footer/>
                 </div>
+                <InfoTooltip
+                    infoTooltip={infoTooltip}
+                    onClose={closeAllPopups}
+                    isOpen={isInfoToolTipPopupOpen}/>
                 <EditProfilePopup isOpen={isEditProfilePopupOpen}
                                   onClose={closeAllPopups}
                                   isLoadingAllData={isLoadingAllData}

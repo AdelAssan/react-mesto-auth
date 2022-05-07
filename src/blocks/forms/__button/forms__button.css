@@ -21,3 +21,9 @@
 .forms__button:hover {
     opacity: 0.8;
 }
+
+@media screen and (max-width: 540px) {
+    .forms__button{
+        min-width: 260px;
+    }
+}
