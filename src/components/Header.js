@@ -11,11 +11,6 @@ function Header(props) {
         setActiveHamburger(!activeHamburger);
     }
 
-    /*function handleMenuClose() {
-        setActiveHamburger(false);
-        props.onSignOut();
-    }*/
-
     return (
         <header className={props.loggedIn ? 'header header_active' : 'header'}>
             <nav className="header__nav">

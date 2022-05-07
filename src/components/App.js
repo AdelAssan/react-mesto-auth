@@ -55,6 +55,8 @@ function App() {
     const handleLogin = (email, password) => {
         auth.authorize(email, password)
             .then((data) => {
+                handleInfoTooltipPopupOpen();
+                setInfoTooltip(true);
                 setLoggedIn(true);
                 //localStorage.clear();
                 localStorage.setItem('jwt', data.token);
@@ -62,6 +64,8 @@ function App() {
                 setUserEmail(email);
                 history.push('/');
             }).catch((error) => {
+            handleInfoTooltipPopupOpen();
+            setInfoTooltip(false);
             console.log(error);
         })
     }
@@ -76,7 +80,7 @@ function App() {
                         setLoggedIn(true);
                         //history.push('/');
                     }
-                });
+                }).catch(error => console.log(error));
         }
     }
 
@@ -137,24 +141,27 @@ function App() {
     function handleCardLike(card) {
         const isLiked = card.likes.some(i => i._id === currentUser._id);
 
-        api.changeLikeCardStatus(card._id, !isLiked).then((newCard) => {
-            putCards((cards) => cards.map((c) => c._id === card._id ? newCard : c));
-        });
+        api.changeLikeCardStatus(card._id, !isLiked)
+            .then((newCard) => {
+                putCards((cards) => cards.map((c) => c._id === card._id ? newCard : c));
+            }).catch(error => console.log(error));
     }
 
     React.useEffect(() => {
-        setIsLoadingAllData(true);
-        api.getAllData()
-            .then((data) => {
-                    const [userData, cardsData] = data;
-                    putCards(cardsData);
-                    setCurrentUser(userData);
-                }
-            ).catch(error => console.log(error))
-            .finally(() => {
-                setIsLoadingAllData(false);
-            })
-    }, []);
+        if (loggedIn) {
+            setIsLoadingAllData(true);
+            api.getAllData()
+                .then((data) => {
+                        const [userData, cardsData] = data;
+                        putCards(cardsData);
+                        setCurrentUser(userData);
+                    }
+                ).catch(error => console.log(error))
+                .finally(() => {
+                    setIsLoadingAllData(false);
+                })
+        }
+    }, [loggedIn]);
 
     function handleCardDeletePopup(evt) {
         evt.preventDefault();
