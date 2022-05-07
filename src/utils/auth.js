@@ -9,7 +9,8 @@ export const register = (email, password) => {
         },
         body: JSON.stringify({
             "password": password,
-            "email": email})
+            "email": email
+        })
     })
         .then((res) => {
             if (res.status !== 400) {
@@ -32,24 +33,23 @@ export const authorize = (email, password) => {
             "email": email
         })
     })
-            .then((res) => {
-                if (res.status === 200) {
-                    return res.json();
-                }
-                if (res.status === 400) {
-                    throw new Error("Не передано одно из полей");
-                }
-                if (res.status === 401) {
-                    throw new Error("Пользователь с email не найден");
-                }
-            })
-    }
+        .then((res) => {
+            if (res.status === 200) {
+                return res.json();
+            }
+            if (res.status === 400) {
+                throw new Error("Не передано одно из полей");
+            }
+            if (res.status === 401) {
+                throw new Error("Пользователь с email не найден");
+            }
+        })
+}
 
 export const getContent = (token) => {
     return fetch(`${BASE_URL}/users/me`, {
         method: 'GET',
         headers: {
-            'Accept': 'application/json',
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`,
         }

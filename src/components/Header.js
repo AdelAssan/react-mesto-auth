@@ -18,29 +18,29 @@ function Header(props) {
 
     return (
         <header className={props.loggedIn ? 'header header_active' : 'header'}>
-                <nav className="header__nav">
-                    <img alt="Логотип" className="header__logo" src={logo}/>
-                    {props.loggedIn &&
-                        (
-                            <button
-                                className={activeHamburger ? 'header__menu-button header__menu-button_active' : 'header__menu-button'}
-                                type="button"
-                                aria-label="кнопка меню"
-                                onClick={handleMenuOpen}
-                            />)}
-                    {!props.loggedIn &&
-                        (<div>
+            <nav className="header__nav">
+                <img alt="Логотип" className="header__logo" src={logo}/>
+                {props.loggedIn &&
+                    (
+                        <button
+                            className={activeHamburger ? 'header__menu-button header__menu-button_active' : 'header__menu-button'}
+                            type="button"
+                            aria-label="кнопка меню"
+                            onClick={handleMenuOpen}
+                        />)}
+                {!props.loggedIn &&
+                    (<div>
                             {location.pathname === '/register' &&
                                 (
-                    <Link to="/login" className="header__link">Войти</Link>
+                                    <Link to="/login" className="header__link">Войти</Link>
                                 )}
                             {location.pathname === '/login' &&
                                 (
-                    <Link to="/register" className="header__link">Регистрация</Link>
+                                    <Link to="/register" className="header__link">Регистрация</Link>
                                 )}
                         </div>
-                        )}
-                </nav>
+                    )}
+            </nav>
             {props.loggedIn &&
                 (
                     <div className={activeHamburger ? 'header__menu header__menu_active' : 'header__menu'}>

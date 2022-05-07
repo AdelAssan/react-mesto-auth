@@ -37,24 +37,12 @@ function App() {
 
     const history = useHistory();
 
-    React.useEffect(() => {
-        tokenCheck();
-    }, []);
-
-    React.useEffect(() => {
-        if (loggedIn) {
-            history.push('/');
-            return;
-        }
-        history.push('/register');
-    }, [loggedIn]);
-
     const handleRegister = (email, password) => {
         auth.register(email, password)
             .then(() => {
                 handleInfoTooltipPopupOpen();
-                    setInfoTooltip(true);
-                    history.push("/login");
+                setInfoTooltip(true);
+                history.push("/login");
 
             })
             .catch((er) => {
@@ -67,20 +55,21 @@ function App() {
     const handleLogin = (email, password) => {
         auth.authorize(email, password)
             .then((data) => {
-                localStorage.setItem('jwt', data.jwt);
-                //tokenCheck();
                 setLoggedIn(true);
+                //localStorage.clear();
+                localStorage.setItem('jwt', data.token);
+                //tokenCheck();
                 setUserEmail(email);
                 history.push('/');
             }).catch((error) => {
-                console.log(error);
-            })
+            console.log(error);
+        })
     }
 
     const tokenCheck = () => {
-        if (localStorage.getItem('jwt')){
-            let jwt = localStorage.getItem('jwt');
-            auth.getContent(jwt)
+        const token = localStorage.getItem('jwt');
+        if (token) {
+            auth.getContent(token)
                 .then((res) => {
                     if (res) {
                         setUserEmail(res.data.email);
@@ -90,6 +79,18 @@ function App() {
                 });
         }
     }
+
+    React.useEffect(() => {
+        tokenCheck();
+    }, []);
+
+    React.useEffect(() => {
+        if (loggedIn) {
+            history.push('/');
+            return;
+        }
+        history.push('/register');
+    }, [loggedIn]);
 
     const handleSignOut = () => {
         localStorage.removeItem('jwt');
@@ -211,14 +212,14 @@ function App() {
                     <Header onSignOut={handleSignOut} userEmail={userEmail} loggedIn={loggedIn}/>
                     <Switch>
                         <ProtectedRoute exact path="/" loggedIn={loggedIn}>
-                            <Main  onEditProfile={handleEditProfileClick}
-                                   onAddPlace={handleAddPlaceClick}
-                                   onEditAvatar={handleEditAvatarClick}
-                                   onCardClick={handleCardClick}
-                                   cards={cards}
-                                   onCardLike={handleCardLike}
-                                   isLoadingAllData={isLoadingAllData}
-                                   onCardDelete={handleCardDelete}/>
+                            <Main onEditProfile={handleEditProfileClick}
+                                  onAddPlace={handleAddPlaceClick}
+                                  onEditAvatar={handleEditAvatarClick}
+                                  onCardClick={handleCardClick}
+                                  cards={cards}
+                                  onCardLike={handleCardLike}
+                                  isLoadingAllData={isLoadingAllData}
+                                  onCardDelete={handleCardDelete}/>
                         </ProtectedRoute>
                         <Route exact path="/login">
                             <Login handleLogin={handleLogin} tokenCheck={tokenCheck}/>
@@ -227,7 +228,7 @@ function App() {
                             <Register handleRegister={handleRegister}/>
                         </Route>
                         <Route>
-                            {loggedIn ? <Redirect to="/" /> : <Redirect to="/login"/> }
+                            {loggedIn ? <Redirect to="/"/> : <Redirect to="/login"/>}
                         </Route>
                     </Switch>
                     <Footer/>
